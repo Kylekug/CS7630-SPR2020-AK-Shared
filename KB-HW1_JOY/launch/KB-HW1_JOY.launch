@@ -1,0 +1,8 @@
+<launch>
+	<node pkg="joy" type="joy_node" name="vrep_joy">
+		<param name="dev" type="string" value="/dev/input/js0"/>
+		<param name="deadzone" value="0.01"/>
+	</node>
+	
+	<node pkg="KB-HW1_JOY" type="KB-vrep-joyPub.py" name="vrep_interpret"/>
+</launch>
