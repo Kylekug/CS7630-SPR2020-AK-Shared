@@ -4,6 +4,9 @@
 #include <boost/algorithm/string.hpp>
 #include <pcl_ros/point_cloud.h>
 #include <pcl/point_types.h>
+#include "floor_nav/FaceArray.h"
+#include "sensor_msgs/RegionOfInterest.h"
+#include <vector>
 
 using namespace floor_nav;
 
@@ -22,6 +25,7 @@ SimTasksEnv::SimTasksEnv(ros::NodeHandle & n) : task_manager_lib::TaskEnvironmen
     pointCloud2DSub = nh.subscribe("/vrep/hokuyoSensor",1,&SimTasksEnv::pointCloud2DCallback,this);
     laserscanSub = nh.subscribe("/scan",1,&SimTasksEnv::laserScanCallback,this);
     velPub = nh.advertise<geometry_msgs::Twist>(auto_topic,1);
+    faceROIArraySub = nh.subscribe("/faceROIArray",1,&SimTasksEnv::faceROIArrayCallback,this);
 }
 
 void SimTasksEnv::setManualControl()
@@ -155,3 +159,8 @@ void SimTasksEnv::laserScanCallback(const sensor_msgs::LaserScanConstPtr msg) {
     }
 }
 
+void SimTasksEnv::faceROIArrayCallback(const floor_nav::FaceArray::ConstPtr& msg) {
+	
+	faces = msg->faceROIArray;
+	
+}

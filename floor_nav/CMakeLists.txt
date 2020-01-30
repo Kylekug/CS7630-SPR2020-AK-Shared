@@ -6,7 +6,7 @@ project(floor_nav)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS geometry_msgs pcl_ros roscpp 
     rospy sensor_msgs std_msgs tf dynamic_reconfigure
-    kobuki_msgs task_manager_lib task_manager_msgs task_manager_action)
+    kobuki_msgs task_manager_lib task_manager_msgs task_manager_action message_generation)
 
 # find_package(task_manager_msgs REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system)
@@ -21,12 +21,11 @@ find_package(Boost REQUIRED COMPONENTS system)
 ## Declare ROS messages and services ##
 #######################################
 
-## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+# Generate messages in the 'msg' folder
+ add_message_files(
+   FILES
+   FaceArray.msg
+ )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -44,13 +43,15 @@ generate_dynamic_reconfigure_options(
   cfg/TaskWander.cfg
   cfg/TaskConstant.cfg
   cfg/TaskAutoDock.cfg
+  cfg/TaskWaitForFace.cfg
+  cfg/TaskStareAtFace.cfg
 )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   geometry_msgs   sensor_msgs   std_msgs   task_manager_msgs
-# )
+ generate_messages(
+   DEPENDENCIES
+   geometry_msgs   sensor_msgs   std_msgs   task_manager_msgs
+ )
 
 ###################################
 ## catkin specific configuration ##
@@ -64,7 +65,7 @@ generate_dynamic_reconfigure_options(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES floor_nav
-  CATKIN_DEPENDS geometry_msgs pcl_ros roscpp rospy sensor_msgs std_msgs task_manager_lib task_manager_msgs task_manager_action kobuki_msgs tf
+  CATKIN_DEPENDS geometry_msgs pcl_ros roscpp rospy sensor_msgs std_msgs task_manager_lib task_manager_msgs task_manager_action kobuki_msgs tf message_runtime
 #  DEPENDS system_lib
 )
 
@@ -139,6 +140,13 @@ ADD_LIBRARY( TaskAutoDock SHARED tasks/TaskAutoDock.cpp)
 TARGET_LINK_LIBRARIES(TaskAutoDock ${catkin_LIBRARIES} dl)
 add_dependencies(TaskAutoDock ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
+ADD_LIBRARY( TaskWaitForFace SHARED tasks/TaskWaitForFace.cpp)
+TARGET_LINK_LIBRARIES(TaskWaitForFace ${catkin_LIBRARIES} dl)
+add_dependencies(TaskWaitForFace ${${PROJECT_NAME}_EXPORTED_TARGETS})
+
+ADD_LIBRARY( TaskStareAtFace SHARED tasks/TaskStareAtFace.cpp)
+TARGET_LINK_LIBRARIES(TaskStareAtFace ${catkin_LIBRARIES} dl)
+add_dependencies(TaskStareAtFace ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 #############
 ## Install ##

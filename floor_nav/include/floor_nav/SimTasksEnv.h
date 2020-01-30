@@ -13,6 +13,9 @@
 #include "pcl/point_types.h"
 #include <tf/transform_listener.h>
 #include <tf/transform_datatypes.h>
+#include "sensor_msgs/RegionOfInterest.h"
+#include "floor_nav/FaceArray.h"
+#include <vector>
 
 namespace floor_nav {
     class SimTasksEnv: public task_manager_lib::TaskEnvironment
@@ -26,12 +29,14 @@ namespace floor_nav {
             ros::Publisher velPub;
             ros::ServiceClient muxClient;
             tf::TransformListener listener;
+            ros::Subscriber faceROIArraySub;
 
             void muxCallback(const std_msgs::String::ConstPtr& msg) ;
 
             void pointCloudCallback(const sensor_msgs::PointCloud2ConstPtr msg) ;
             void pointCloud2DCallback(const sensor_msgs::PointCloud2ConstPtr msg) ;
             void laserScanCallback(const sensor_msgs::LaserScanConstPtr msg) ;
+            void faceROIArrayCallback(const floor_nav::FaceArray::ConstPtr& msg) ;
 
             bool manualControl;
             std::string joystick_topic;
@@ -40,6 +45,7 @@ namespace floor_nav {
             std::string reference_frame;
             pcl::PointCloud<pcl::PointXYZ> pointCloud;
             pcl::PointCloud<pcl::PointXYZ> pointCloud2D;
+            std::vector<sensor_msgs::RegionOfInterest> faces;
 
         public:
             SimTasksEnv(ros::NodeHandle & nh);
@@ -55,6 +61,8 @@ namespace floor_nav {
 
             const pcl::PointCloud<pcl::PointXYZ>& getPointCloud() const {return pointCloud;}
             const pcl::PointCloud<pcl::PointXYZ>& getPointCloud2D() const {return pointCloud2D;}
+
+			std::vector<sensor_msgs::RegionOfInterest> getFaces() const {return faces;}
 
             void publishVelocity(double linear, double angular) ;
             void publishVelocity(double linear_x, double linear_y, double angular) ;
