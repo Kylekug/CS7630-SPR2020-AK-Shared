@@ -11,15 +11,15 @@ default_period = rospy.get_param("~period",0.05)
 tc = TaskClient(server_node,default_period)
 rospy.loginfo("Mission connected to server: " + server_node)
 
-scale=0.2
+scale=2.0
 vel=0.75
 ang=pi/2
 
 tc.WaitForAuto()
 try:
-    tc.GoTo(goal_x=0,goal_y=scale,theta=ang,max_velocity=vel)
-    tc.Wait(duration=5.0)
-    tc.GoTo(goal_x=0,goal_y=scale,theta=ang,max_velocity=vel)
+    tc.GoTo(goal_x=scale,goal_y=scale,theta=ang,max_velocity=vel)
+    #tc.Wait(duration=5.0)
+    #tc.GoTo(goal_x=0,goal_y=scale,theta=ang,max_velocity=vel)
     #tc.Wait(duration=1.0)
     #tc.GoTo(goal_x=scale,goal_y=scale,max_velocity=vel)
     #tc.Wait(duration=1.0)
