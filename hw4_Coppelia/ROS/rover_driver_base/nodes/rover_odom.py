@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import roslib; roslib.load_manifest('rover_driver')
+import roslib; roslib.load_manifest('rover_driver_base')
 import rospy
 from std_msgs.msg import Float64
 from sensor_msgs.msg import JointState
@@ -98,6 +98,7 @@ class RoverDriver:
 
 if __name__ == '__main__':
     try:
+        print("Rover driver on the way!")
         rd = RoverDriver("rover") 
         rd.run()
     except rospy.ROSInterruptException:
