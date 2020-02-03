@@ -14,7 +14,7 @@
       <param name="axis_linear_y" value="0" type="int"/>
       <param name="axis_angular" value="3" type="int"/>
       <param name="scale_linear" value="1.0" type="double"/>
-      <param name="scale_angular" value="2.0" type="double"/>
+      <param name="scale_angular" value="0.7" type="double"/>
       <remap from="/teleop/joy" to="/joy"/>
       <remap from="/teleop/twistCommand" to="/rover/twistCommand"/>
   </node>
