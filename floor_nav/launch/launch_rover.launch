@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<launch>
+    <include file="/home/GTL/aridani/catkin_ws/src/hw4_Coppelia/ROS/rover_driver_base/launch/rover_odom.launch"/> 
+    <node name="task_server" pkg="floor_nav" type="task_server" output="screen" >
+        <!-- After install -->
+        <!-- <param name="lib_path" value="$(find floor_nav)/tasks"/> -->
+        <!-- While developing -->
+        <param name="lib_path" value="$(find floor_nav)/../../devel/share/floor_nav/tasks"/>
+        <param name="base_frame" value="/rover/ground"/>
+        <param name="reference_frame" value="/odom"/>
+        <!-- <param name="reference_frame" value="map"/>-->
+        <remap from="/mux/autoCommand" to="/rover/twistCommand"/>
+    </node>
+
+</launch>
+

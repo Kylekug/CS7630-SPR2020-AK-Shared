@@ -43,8 +43,6 @@ generate_dynamic_reconfigure_options(
   cfg/TaskWander.cfg
   cfg/TaskConstant.cfg
   cfg/TaskAutoDock.cfg
-  cfg/TaskWaitForFace.cfg
-  cfg/TaskStareAtFace.cfg
 )
 
 ## Generate added messages and services with any dependencies listed here
@@ -140,13 +138,7 @@ ADD_LIBRARY( TaskAutoDock SHARED tasks/TaskAutoDock.cpp)
 TARGET_LINK_LIBRARIES(TaskAutoDock ${catkin_LIBRARIES} dl)
 add_dependencies(TaskAutoDock ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
-ADD_LIBRARY( TaskWaitForFace SHARED tasks/TaskWaitForFace.cpp)
-TARGET_LINK_LIBRARIES(TaskWaitForFace ${catkin_LIBRARIES} dl)
-add_dependencies(TaskWaitForFace ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
-ADD_LIBRARY( TaskStareAtFace SHARED tasks/TaskStareAtFace.cpp)
-TARGET_LINK_LIBRARIES(TaskStareAtFace ${catkin_LIBRARIES} dl)
-add_dependencies(TaskStareAtFace ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 #############
 ## Install ##

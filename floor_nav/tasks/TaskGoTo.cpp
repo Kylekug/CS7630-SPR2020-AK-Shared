@@ -32,6 +32,7 @@ TaskIndicator TaskGoTo::iterate()
 {
 const geometry_msgs::Pose2D & tpose = env->getPose2D();
 double r = hypot(y_init + cfg.goal_y-tpose.y,x_init + cfg.goal_x-tpose.x);
+if (!cfg.holonomic_mode){
 if(!cfg.smart_mode){
 		if (r < cfg.dist_threshold) {
 			//test
@@ -80,7 +81,31 @@ if(!cfg.smart_mode){
 			}
 	return TaskStatus::TASK_RUNNING;
 	 }
-}
+ }else{
+		double dx=x_init+cfg.goal_x-tpose.x;
+		double dy=y_init+cfg.goal_y-tpose.y;
+		double dtheta=remainder(theta_init+cfg.theta-tpose.theta,2*M_PI);
+		
+		#ifdef DEBUG_GOTOPOSE
+				printf("Cmd x %.2f y %.2f dx %.2f dy %.2f dtheta %.2f\n",tpose.x,tpose.y,dx,dy,dtheta);
+		#endif
+		
+		if (fabs(dtheta) < cfg.ang_threshold && hypot(dx,dy) < cfg.dist_threshold) {
+			return TaskStatus::TASK_COMPLETED;
+		}
+		
+		double vel_x= cfg.k_v*(cos(cfg.theta)*dx+sin(cfg.theta)*dy);
+		double vel_y= cfg.k_v*(-cos(cfg.theta)*dx+sin(cfg.theta)*dy);
+		double rot= cfg.k_gamma*dtheta;
+		
+		vel_x = std::max(std::min(vel_x,cfg.max_velocity),-cfg.max_velocity);
+		vel_y = std::max(std::min(vel_y,cfg.max_velocity),-cfg.max_velocity);
+		rot = std::max(std::min(rot,cfg.max_angular_velocity),-cfg.max_angular_velocity);
+		
+		env->publishVelocity(vel_x, vel_y, rot);
+		return TaskStatus::TASK_RUNNING;
+		}
+	}
 
 TaskIndicator TaskGoTo::terminate()
 {
