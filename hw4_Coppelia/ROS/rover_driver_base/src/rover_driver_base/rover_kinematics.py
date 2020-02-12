@@ -35,6 +35,15 @@ class RoverKinematics:
         self.motor_state = RoverMotors()
         self.first_run = True
 
+    def angleNormalize(self, ang):
+        #helper function to normalize angle b/n 0 -> 2pi
+        while(ang < -pi):
+            ang += 2*pi
+        while(ang > pi):
+            ang -= 2*pi
+        return ang	
+
+
     def twist_to_motors(self, twist, drive_cfg, skidsteer=False, drive_state=None):
         motors = RoverMotors()
         if skidsteer:
@@ -43,9 +52,9 @@ class RoverKinematics:
                 # each wheel in skid-steer mode
                 motors.steering[k] = 0
                 if k=="FL" or k=="CL" or k=="RL":
-                    motors.drive[k] = twist.linear.x/drive_cfg[k].radius-twist.angular.z
+                    motors.drive[k] = (twist.linear.x)/drive_cfg[k].radius-twist.angular.z
                 else:
-                    motors.drive[k] = twist.linear.x/drive_cfg[k].radius+twist.angular.z
+                    motors.drive[k] = (twist.linear.x)/drive_cfg[k].radius+twist.angular.z
         else:
             for k in drive_cfg.keys():
                 # print("%s: %f %f"%(k,drive_state.steering[k],drive_state.drive[k]))
@@ -80,13 +89,9 @@ class RoverKinematics:
         A=numpy.asmatrix(numpy.zeros((12,3)))
         B=numpy.asmatrix(numpy.zeros((12,1)))
         for k in drive_cfg.keys():
-            lastAngle = self.motor_state.drive[k]
-            curAngle = motor_state.drive[k]
-            if lastAngle < 0:
-                lastAngle += 2*pi
-            if curAngle < 0:
-                curAngle += 2*pi
-            difAngle = (curAngle - lastAngle) % (2*pi)
+            lastAngle = self.angleNormalize(self.motor_state.drive[k])
+            curAngle = self.angleNormalize(motor_state.drive[k])
+            difAngle = self.angleNormalize(curAngle - lastAngle)
             s = difAngle * drive_cfg[k].radius
             A[2*drive_cfg.keys().index(k),0]=1
             A[2*drive_cfg.keys().index(k),2]=-drive_cfg[k].y
@@ -94,16 +99,14 @@ class RoverKinematics:
             A[2*drive_cfg.keys().index(k)+1,2]=drive_cfg[k].x
             B[2*drive_cfg.keys().index(k),0]= s*cos(self.motor_state.steering[k])
             B[2*drive_cfg.keys().index(k)+1,0]= s*sin(self.motor_state.steering[k])
-            print("difAngle = ", difAngle, " | lastAngle = ", lastAngle, " | curAngle = ", curAngle)
-            #print("s = ", s, "; drive = ", self.motor_state.drive[k], "; radius = ", drive_cfg[k].radius, "; t_d = ", t_d, " | for k = ", k)
+            #print("difAngle = ", difAngle, " | lastAngle = ", lastAngle, " | curAngle = ", curAngle)
         C=pinv(A)*B
-        self.X[0,0] += C[0,0]
-        self.X[1,0] += C[1,0]
+        self.X[0,0] += C[0,0]*cos(self.X[2,0])-C[1,0]*sin(self.X[2,0])
+        self.X[1,0] += C[0,0]*sin(self.X[2,0])+C[1,0]*cos(self.X[2,0])
         self.X[2,0] += C[2,0]
         # self.X[0,0] += 0.0
         # self.X[1,0] += 0.0
         # self.X[2,0] += 0.0
-        self.t_i = time.time()
         self.motor_state.copy(motor_state)
 
         #print "integrate_odometry just ran!"

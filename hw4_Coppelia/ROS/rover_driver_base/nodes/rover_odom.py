@@ -98,7 +98,6 @@ class RoverDriver:
 
 if __name__ == '__main__':
     try:
-        print("Rover driver on the way!")
         rd = RoverDriver("rover") 
         rd.run()
     except rospy.ROSInterruptException:
