@@ -72,6 +72,52 @@ class RoverPF(RoverKinematics):
 
         # self.particles = ...
         
+        
+        z_part = [None] * (len(self.particles))
+        z_world = mat(zeros((2,1)))
+        
+        normSum = 0
+        temp_part = self.particles
+        
+        for k,v in enumerate(self.particles):
+            
+            #before messing with anything, let's save our particles
+
+            
+            #let's calculate observations we'd expect from each particle,
+            #define vector in world frame w/ delta x and delta y to L,
+            z_world[0,0] = L[0,0] - self.particles[k][0,0]
+            z_world[1,0] = L[1,0] - self.particles[k][1,0]
+            
+            #rotate by -theta to get robo-frame (particle-frame), 
+            t_part = -self.particles[k][2,0]
+            z_part[k] = mat(zeros((2,1)))
+            z_part[k][0,0] = z_world[0,0]*cos(t_part) - z_world[1,0]*sin(t_part)
+            z_part[k][1,0] = z_world[0,0]*sin(t_part) + z_world[1,0]*cos(t_part)
+            
+            #let's now get the vector difference between expected observations
+            #and actual observation, (we'll store it in z_part); then we get
+            #magnitude
+            z_part[k] = numpy.linalg.norm(z_part[k] - Z)
+            
+            #let's now calculate the weights we'll be using for prob.,
+            #use Guassian prob. density:
+            sigma = Uncertainty
+            normalizeCoeff = 1 / (sigma * pow(2*pi,0.5))
+            z_part[k] = normalizeCoeff * exp(-0.5 * pow(z_part[k],2) / pow(sigma,2))
+            normSum += z_part[k]
+            
+        z_part = z_part / normSum
+        
+        #if (z_part.index(NaN)): print z_part
+        
+        #todo: sometimes z_part gets a NaN; suspect might be related to getting a 
+        #"perfect" measurement on occasion? may just want to do some rough error checking
+        randIndex = numpy.random.choice(range(len(self.particles)), self.N, p=z_part)
+        
+        for k,v in enumerate(randIndex): 
+            self.particles[k] = temp_part[v] + self.drawNoise(Uncertainty)
+        
         self.lock.release()
 
     def update_compass(self, angle, Uncertainty):
