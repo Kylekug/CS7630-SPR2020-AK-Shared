@@ -44,22 +44,6 @@ class Landmark:
         
         #for now, assume update is just replacement:
         #ask Pradlier how he wants us to handle?
-        # self.L =vstack([0,0])
-        # self.P =mat([[0,0],[0,0]])
-        # self.P[0,0] = pow(R,2)
-        # self.P[1,1] = pow(R,2)
-        
-        # theta = X[2,0]
-        
-        # Rotate = mat(zeros((2,2)))
-        # Rotate[0,0] = cos(theta); Rotate[0,1] = -sin(theta)
-        # Rotate[1,0] = sin(theta); Rotate[1,1] = cos(theta)
-        
-        # X_planar = mat([X[0,0],X[1,0]])
-        # Z_norm = numpy.linalg.norm(Z)
-        # Z_world = Rotate * Z
-        
-        # self.L = X_planar + Z_world
         
         theta = -X[2,0]
         
@@ -72,33 +56,14 @@ class Landmark:
         X_planar = mat([[X[0,0]],[X[1,0]]])
         
         H = numpy.identity(2) * Rotate
-        
-        #print("H = ", H)
-        
-        #print("R = ", R)
-        
-        #print("self.P = ", self.P)
-        
-        #print("H * self.P * H.transpose() = ", H * self.P * H.transpose())
-        
-        #print("self.P * H.transpose() = ", self.P * H.transpose())
-        
-        K = (self.P * H.transpose()) * numpy.linalg.inv(H * self.P * H.transpose() + R)
-        
-        #print("K = ", K)
-        
-        #print("self.L = ", self.L)
-        
+
+        K = (self.P * H.T) * inv(H * self.P * H.T + R)
+
         h_func = Rotate * (self.L - X_planar)
-        
-        #print("h_func = ", h_func)
-        
-        #print("Z = ", Z)
-        
+
         self.L = self.L + K * (Z - h_func)
         
         self.P = (numpy.identity(2) - K * H) * self.P
-        
         
         return
         
@@ -119,7 +84,7 @@ class MappingKF:
         # such that current landmark can be retrieved as self.marker_list[Id] 
         # At initialisation, self.marker_list is empty
         # TODO
-        if (Id in self.marker_list):
+        if Id in self.marker_list.keys():
             self.marker_list[Id].update(Z, X, R)
         else:
             self.marker_list[Id] = Landmark(Z, X, R)

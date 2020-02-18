@@ -44,8 +44,20 @@ class RoverKF(RoverKinematics):
         # ultimately : 
         # self.X =  
         # self.P = 
-
+        theta = self.X[2,0]
+        Rtheta = mat([[cos(theta), -sin(theta), 0], 
+                      [sin(theta),  cos(theta), 0],
+                      [         0,           0, 1]]);
+        dX = iW*S
+        self.X = self.X + Rtheta*dX
+        A = mat([[1, 0, -sin(theta)*dX[0,0]-cos(theta)*dX[1,0]],
+                 [0, 1,  cos(theta)*dX[0,0]-sin(theta)*dX[1,0]],
+                 [0, 0,                       1              ]])
+        B = Rtheta*iW
+        Qu = mat(diag([encoder_precision]*len(S)))
+        self.P = A * self.P * A.T + B * Qu * B.T
         self.lock.release()
+        return (self.X,self.P)
 
     def update_ar(self, Z, L, uncertainty):
         self.lock.acquire()
@@ -54,7 +66,21 @@ class RoverKF(RoverKinematics):
         # TODO
         # self.X = 
         # self.P = 
+
+        R = mat(diag([uncertainty,uncertainty]))
+        theta = self.X[2,0]
+        Rtheta = self.getRotation(-theta)
+        Zp = Rtheta*mat([L[0,0]-self.X[0,0], L[1,0]-self.X[1,0]]).T
+        
+        H = mat([[-cos(theta), -sin(theta), -(L[0,0]-self.X[0,0])*sin(theta) + (L[1,0]-  self.X[1,0])*cos(theta)],
+                 [ sin(theta), -cos(theta), -(L[0,0]-self.X[0,0])*cos(theta) - (L[1,0]-self.X[1,0])*sin(theta)]])
+ 
+        K = self.P * H.T * inv(H * self.P * H.T + R)
+        self.X = self.X + K * (Z - Zp)
+        self.P = (mat(eye(3)) - K * H) * self.P
+
         self.lock.release()
+        return (self.X,self.P)
 
     def update_compass(self, Z, uncertainty):
         self.lock.acquire()
@@ -63,8 +89,7 @@ class RoverKF(RoverKinematics):
         # TODO
         # self.X = 
         # self.P = 
-        self.lock.release()
-        return 
+
 
     # this publishes the pose but also the pose with covariance and the error ellipse in rviz
     def publish(self, pose_pub, target_frame, stamp):
