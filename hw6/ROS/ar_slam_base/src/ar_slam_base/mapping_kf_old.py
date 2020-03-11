@@ -98,18 +98,45 @@ class MappingKF(RoverKinematics):
         #(which uses polar)
         
         
+        Id = id
+        
+        #convert Z "x and y" to "r and psi" (both in robo frame)
+        Z_polar = mat(vstack([linalg.norm(Z),arctan2(Z[1,0],Z[0,0])]))
+        
+        R = mat(diag([uncertainty**2,0.1**2])) #TODO: is this polar equivalent ok? :(
+        
+        #R = mat(diag([uncertainty, uncertainty]))
+        
+        print("Z_polar = ", Z_polar)
+        
+        if Id not in self.idx.keys():
+            self.idx[Id] = 3 + (2*len(self.idx))
+            Z_prev = mat(vstack([
+                self.X[0,0] + Z_polar[0,0] * cos(Z_polar[1,0]+self.X[2,0]),
+                self.X[1,0] + Z_polar[0,0] * sin(Z_polar[1,0]+self.X[2,0])
+                ]))
+            self.X = mat(vstack([self.X, Z_prev]))
+            
+            Px = size(self.P,0)
+            Py = size(self.P,1)
+            newP = zeros((Px+2,Py+2))
+            newP[0:Px,0:Py] = self.P
+            newP[Px:,Py:] = R
+            self.P = newP
+            
+            print("New P!")
+            print(newP)
+        
         (n,_) = self.X.shape
-        R = mat(diag([uncertainty**2,uncertainty**2]))
+        R = mat(diag([uncertainty,uncertainty]))
         theta = self.X[2,0]
         Rtheta = self.getRotation(theta)
         Rmtheta = self.getRotation(-theta)
-        # First run the filter on all the known landmarks
         H = mat(zeros((0, n)))
-        if id in self.idx.keys():
-            l = self.idx[id]
-            H = mat(zeros((2,n)))
-            H[0:2,0:2] = -Rmtheta
-            H[0:2,2] = mat(vstack([-(self.X[l+0,0]-self.X[0,0])*sin(theta) - (self.X[l+1,0]-self.X[1,0])*cos(theta), 
+        l = self.idx[id]
+        H = mat(zeros((2,n)))
+        H[0:2,0:2] = -Rmtheta
+        H[0:2,2] = mat(vstack([-(self.X[l+0,0]-self.X[0,0])*sin(theta) + (self.X[l+1,0] - self.X[1,0])*cos(theta), \
                                    (self.X[l+0,0]-self.X[0,0])*cos(theta) - (self.X[l+1,0]-self.X[1,0])*sin(theta)]))
             H[0:2,l:l+2] = Rmtheta
             Zpred = Rmtheta * (self.X[l:l+2,0] - self.X[0:2,0])
@@ -117,18 +144,7 @@ class MappingKF(RoverKinematics):
             K = self.P * H.T * inv(S)
             self.X = self.X + K * (Z - Zpred)
             self.P = (mat(eye(n)) - K * H) * self.P
-        else:
-            self.idx[id] = n
-            # print self.X
-            # print Rtheta
-            # print Z
-            # print self.X[0:2,0]
-            # print Rtheta*Z
-            # print self.X[0:2,0]+Rtheta*Z
-            self.X = numpy.concatenate((self.X, self.X[0:2,0]+(Rtheta*Z)))
-            Pnew = mat(diag([uncertainty]*(n+2)))
-            Pnew[0:n,0:n] = self.P
-            self.P = Pnew
+        
         self.lock.release()
         return (self.X,self.P)
 
@@ -190,8 +206,11 @@ class MappingKF(RoverKinematics):
             marker.pose.orientation.z = 1
             marker.pose.orientation.w = 0
             #default assumes x and y on diagonal for covariance,
+            #marker.scale.x = 3*sqrt(self.P[l,l])
+            #marker.scale.y = 3*sqrt(self.P[l+1,l+1]);
+            #however we are unfortunately using radius/phi:
             marker.scale.x = 3*sqrt(self.P[l,l])
-            marker.scale.y = 3*sqrt(self.P[l+1,l+1]);
+            marker.scale.y = 3*sqrt(self.P[l,l])
             marker.scale.z = 0.1;
             marker.color.a = 1.0;
             marker.color.r = 1.0;
