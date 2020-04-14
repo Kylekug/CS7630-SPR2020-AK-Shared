@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # ROS specific imports
+#testerino
 import roslib; roslib.load_manifest('floor_nav')
 import rospy
 from math import *
