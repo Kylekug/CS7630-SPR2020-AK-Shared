@@ -1,0 +1,26 @@
+<launch>
+
+    <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen" >
+        <remap from="scan" to="/vrep/hokuyo"/> 
+        <param name="base_frame" value="bubbleRob"/>
+        <param name="odom_frame" value="world"/>
+        <param name="maxURange" value="5.0"/>
+        <param name="maxRange" value="5.0"/>
+        <param name="xmin" value="-10.0"/>
+        <param name="xmax" value="10.0"/>
+        <param name="ymin" value="-10.0"/>
+        <param name="ymax" value="10.0"/>
+        <param name="map_update_interval" value="1.0"/>
+    </node>
+
+  <node pkg="occgrid_planner_base" type="occgrid_planner_b" name="planner" output="screen">
+    <param name="neighbourhood" value="8"/>
+    <param name="base_frame" value="bubbleRob"/>
+    <param name="debug" value="False"/>
+    <param name="radius" value="0.2"/>
+    <remap from="/planner/occ_grid" to="/map"/>
+    <remap from="/planner/goal" to="/move_base_simple/goal"/>
+  </node>
+
+
+</launch>
