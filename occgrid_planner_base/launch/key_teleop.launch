@@ -1,8 +1,0 @@
-<launch>  
-
-  <node pkg="keyboard_teleop" type="teleop.py" name="teleop_twist_keyboard" >
-    <remap from="/teleop_twist_keyboard/controller" to="/teleop/twistCommand"/>
-  </node>
-
-</launch>
-
