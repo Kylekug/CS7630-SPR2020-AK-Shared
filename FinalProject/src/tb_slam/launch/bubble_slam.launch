@@ -1,16 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
 <launch>
 	<arg name="marker_size" default="50.0" />
 	<arg name="max_new_marker_error" default="0.08" />
 	<arg name="max_track_error" default="0.2" />
-    <arg name="cam_image_topic" default="/vrep/follower_0/visionSensor" />
-    <arg name="cam_info_topic" default="/vrep/follower_0/visionSensorInfo" />	
-	<arg name="output_frame" default="/frontCamera_0" />
-	<node name="ar_track_alvar" pkg="ar_track_alvar" type="individualMarkersNoKinect" respawn="false" output="screen" args="$(arg marker_size) $(arg max_new_marker_error) $(arg max_track_error) $(arg cam_image_topic) $(arg cam_info_topic) $(arg output_frame)" />
+    <arg name="cam_image_topic" default="/vrep/visionSensor" />
+    <arg name="cam_info_topic" default="/vrep/visionSensorInfo" />	
+	<arg name="output_frame" default="/visionSensor" />
 
   <node pkg="robot_control" type="bubble_odom.py" name="odom" output="screen">
-      <param name="vrep_prefix" value="/vrep/follower_0"/>
+      <param name="vrep_prefix" value="/vrep/"/>
         <param name="odom_frame" value="/odom"/>
-        <param name="body_frame" value="/follower_0"/>
+        <param name="body_frame" value="/bubbleRob"/>
   </node>
 
     <!-- joy node -->
@@ -27,7 +28,7 @@
     <param name="scale_linear" value="1.0" type="double"/>
     <param name="scale_angular" value="1.0" type="double"/>
     <remap from="/teleop/joy" to="/joy"/>
-    <remap from="/teleop/twistCommand" to="/vrep/follower_0/twistCommand"/>
+    <remap from="/teleop/twistCommand" to="/vrep/twistCommand"/>
   </node>
 
 
@@ -36,7 +37,7 @@
         <param name="ignore_id" value="False"/>
         <param name="target_frame" value="/map"/>
         <param name="odom_frame" value="/odom"/>
-        <param name="body_frame" value="/follower_0"/>
+        <param name="body_frame" value="/bubbleRob"/>
         <!-- Expected precision of wheel displacement measurement (in meter) -->
         <param name="position_uncertainty" value="0.01"/>
         <param name="angular_uncertainty" value="0.01"/>
