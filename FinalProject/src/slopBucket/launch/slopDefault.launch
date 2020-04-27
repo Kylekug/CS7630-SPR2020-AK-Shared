@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<launch>
+    <node pkg="slopBucket" type="frontier_wrapper_node" name="frontier_wrapper" output="screen"/>
+    <node pkg="slopBucket" type="commander_node" name="commander_node" output="screen"/>
+    
+    <include file="$(find gtlwifi)/launch/minimal.launch"/>
+    <include file="$(find gtlwifi)/launch/3dsensor.launch"/>
+    <!--<include file="$(find gtlwifi)/launch/gmapping_odom_bubblerob.launch"/>-->
+    <include file="$(find occgrid_planner_base)/launch/ezPlanner.launch"/>
+    <include file="$(find exploration_server)/launch/exploration.launch"/>
+</launch>
