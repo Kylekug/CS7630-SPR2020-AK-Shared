@@ -27,6 +27,7 @@ class BatteryManager {
         ros::NodeHandle nh_;
         ros::Subscriber og_sub_;
         ros::Subscriber target_sub_;
+        ros::Subscriber battery_sub_;
         ros::Publisher path_pub_;
         tf::TransformListener listener_;
 
@@ -43,7 +44,7 @@ class BatteryManager {
         bool debug;
         double radius;
         double battery_charge;        
-
+        ros::Timer timer;
         typedef std::multimap<float, cv::Point3i> Heap;
 
         // Callback for Occupancy Grids
@@ -364,7 +365,7 @@ class BatteryManager {
             }
             battery_sub_ = nh_.subscribe("battery",1,&BatteryManager::battery_callback,this);
             og_sub_ = nh_.subscribe("occ_grid",1,&BatteryManager::og_callback,this);
-            target_sub_ = nh_.subscribe("goal",1,&BatteryManager::target_callback,this);
+            //target_sub_ = nh_.subscribe("goal",1,&BatteryManager::target_callback,this);
             path_pub_ = nh_.advertise<nav_msgs::Path>("path",1,true);
             timer = nh_.createTimer(ros::Duration(10.0), &BatteryManager::replanner_callback,this);
         }
