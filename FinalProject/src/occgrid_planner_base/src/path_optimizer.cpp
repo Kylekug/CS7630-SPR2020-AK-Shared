@@ -78,5 +78,3 @@ int main(int argc, char * argv[]) {
     PathOptimizer po;
     ros::spin();
 }
-
-

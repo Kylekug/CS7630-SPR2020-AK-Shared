@@ -17,6 +17,18 @@
         <param name="initial_y" value="0.0"/>
         <param name="initial_theta" value="0.0"/>
     </node>
-
+    
+    <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen" >
+        <remap from="scan" to="/vrep/hokuyo"/> 
+        <param name="base_frame" value="bubbleRob"/>
+        <param name="odom_frame" value="odom"/>
+        <param name="maxURange" value="5.0"/>
+        <param name="maxRange" value="5.0"/>
+        <param name="xmin" value="-10.0"/>
+        <param name="xmax" value="10.0"/>
+        <param name="ymin" value="-10.0"/>
+        <param name="ymax" value="10.0"/>
+        <param name="map_update_interval" value="1.0"/>
+    </node>
 
 </launch>

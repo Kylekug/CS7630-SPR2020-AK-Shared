@@ -226,7 +226,7 @@ class OccupancyGridPlanner {
 	            if (hypot((target.x-start.x),(target.y-start.y))<5){
 				    ROS_INFO("Target already reached!");
 				    nav_msgs::Path path;
-		            path_pub_.publish(path);
+		            return;
 				    // maybe publish smh path_pub_.publish(path);
 				}else{
 		            ROS_INFO("Starting planning from (%d, %d, %d) to (%d, %d, %d)",start.x,start.y,start.z, target.x, target.y, target.z);
